@@ -1,8 +1,7 @@
-using System.Net.Http.Json;
-using System.Text.Json;
 using Api.Configuration;
 using Api.Models;
 using Microsoft.Extensions.Options;
+using System.Text.Json;
 
 namespace Api.Services;
 
@@ -56,16 +55,13 @@ public sealed class OllamaReleaseService(HttpClient httpClient, IOptions<Release
         if (string.IsNullOrWhiteSpace(changelogText))
             changelogText = "(No items in this release)";
 
-        var langInstruction = language.Equals("fr", StringComparison.OrdinalIgnoreCase)
-            ? "Write the release note in French. Use a clear, user-friendly tone suitable for the target audience."
-            : "Write the release note in English. Use a clear, user-friendly tone suitable for the target audience.";
+        var langInstruction = $"Write the release note in language code \"{language}\". Use a clear, user-friendly tone suitable for the target audience.";
 
         return "You are a release note writer. Given a technical changelog, produce a single release note for the \"" + format + "\" format.\n\n"
             + langInstruction + "\n\n"
             + "The output must follow the style and structure of this example (use placeholders like {version} and {date} only as reference; replace them with the actual version and date):\n\n"
-            + "---\n"
             + exampleTemplate + "\n"
-            + "---\n\n"
+            + "\n\n"
             + "Technical changelog for version " + parsed.Version + " (" + parsed.Date + "):\n\n"
             + changelogText + "\n\n"
             + "Produce only the release note content, no preamble or explanation.";

@@ -21,6 +21,13 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ReleaseGenerator__Ollama__BaseUrl: http://ollama:11434
+
+      ReleaseGenerator__Languages__0: "en"
+
+      ReleaseGenerator__Formats__store__ExampleTemplate: |-
+        What's New in {version}:
+        • ...
+        • ...
     depends_on:
       - ollama
     labels:
