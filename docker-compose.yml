@@ -14,30 +14,30 @@ services:
     networks:
       - traefik_proxy
 
-  # releasegenerator:
-  #   image: registry.domain.net/releasegenerator/api:latest
-  #   container_name: releasegenerator-api
-  #   restart: always
-  #   environment:
-  #     ASPNETCORE_ENVIRONMENT: Production
-  #     OLLAMA__BASEURL: http://ollama:11434
-  #   depends_on:
-  #     - ollama
-  #   labels:
-  #     - "traefik.enable=true"
-  #
-  #     - "traefik.http.routers.releasegenerator.rule=Host(`releasegenerator.domain.net`)"
-  #     - "traefik.http.routers.releasegenerator.entrypoints=websecure"
-  #     - "traefik.http.routers.releasegenerator.tls=true"
-  #     - "traefik.http.routers.releasegenerator.tls.certresolver=myresolver"
-  #     - "traefik.http.services.releasegenerator.loadbalancer.server.port=80"
-  #     - "traefik.http.routers.releasegenerator.middlewares=rate-limit-global@file"
-  #
-  #     - "traefik.http.routers.releasegenerator-http.rule=Host(`releasegenerator.domain.net`)"
-  #     - "traefik.http.routers.releasegenerator-http.entrypoints=web"
-  #     - "traefik.http.routers.releasegenerator-http.middlewares=redirect-to-https@file"
-  #   networks:
-  #     - traefik_proxy
+  releasegenerator:
+    image: registry.domain.net/releasegenerator/api:latest
+    container_name: releasegenerator-api
+    restart: always
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      OLLAMA__BASEURL: http://ollama:11434
+    depends_on:
+      - ollama
+    labels:
+      - "traefik.enable=true"
+  
+      - "traefik.http.routers.releasegenerator.rule=Host(`releasegenerator.domain.net`)"
+      - "traefik.http.routers.releasegenerator.entrypoints=websecure"
+      - "traefik.http.routers.releasegenerator.tls=true"
+      - "traefik.http.routers.releasegenerator.tls.certresolver=myresolver"
+      - "traefik.http.services.releasegenerator.loadbalancer.server.port=80"
+      - "traefik.http.routers.releasegenerator.middlewares=rate-limit-global@file"
+  
+      - "traefik.http.routers.releasegenerator-http.rule=Host(`releasegenerator.domain.net`)"
+      - "traefik.http.routers.releasegenerator-http.entrypoints=web"
+      - "traefik.http.routers.releasegenerator-http.middlewares=redirect-to-https@file"
+    networks:
+      - traefik_proxy
 
 volumes:
   ollama:

@@ -1,0 +1,38 @@
+@Api_HostAddress = http://localhost:5041
+
+GET {{Api_HostAddress}}/api/ReleaseNotes/formats
+Accept: application/json
+
+###
+
+GET {{Api_HostAddress}}/api/ReleaseNotes/languages
+Accept: application/json
+
+###
+
+POST {{Api_HostAddress}}/api/ReleaseNotes/generate
+Content-Type: application/json
+Accept: application/json
+
+{
+  "changelog": "## [v1.0.0] - 2025-03-17\n\n### Added\n\n- New feature A;\n- New feature B;\n\n### Fixed\n\n- Bug fix Y;",
+  "format": "discord",
+  "language": "en"
+}
+
+###
+
+POST {{Api_HostAddress}}/api/ReleaseNotes/generate-from-body?format=discord&language=en
+Content-Type: text/plain
+Accept: text/plain
+
+## [v1.0.0] - 2025-03-17
+
+### Added
+
+- New feature A;
+- New feature B;
+
+### Fixed
+
+- Bug fix Y;
