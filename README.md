@@ -44,6 +44,8 @@ Configuration lives under `ReleaseGenerator` in `appsettings.json` (or environme
 | `ReleaseGenerator:Ollama:BaseUrl` | Ollama base URL (e.g. `http://localhost:11434` or `http://ollama:11434` in Docker). |
 | `ReleaseGenerator:Ollama:Model` | Model name (e.g. `llama3.2`). See [Recommended models](#recommended-ollama-models) for better translation and formatting. |
 | `ReleaseGenerator:Ollama:TimeoutSeconds` | Request timeout for Ollama. |
+| `ReleaseGenerator:Ollama:Context` | Optional global context (product) appended to the prompt. Keep it short and specific. |
+| `ReleaseGenerator:Ollama:Glossary` | Optional dictionary of preferred terms/translations (source term → preferred output). |
 | `ReleaseGenerator:Languages` | List of allowed language codes (e.g. `["en", "fr"]`). |
 | `ReleaseGenerator:Formats` | Map of format id → `{ "ExampleTemplate": "..." }`. The model uses the example to match style and structure. You can use placeholders like `{version}` and `{date}` in the example; the prompt tells the model to use the real version and date. |
 
@@ -55,7 +57,11 @@ Example (excerpt):
     "Ollama": {
       "BaseUrl": "http://localhost:11434",
       "Model": "llama3.2",
-      "TimeoutSeconds": 120
+      "TimeoutSeconds": 120,
+      "Context": "My super app to help world to get better.",
+      "Glossary": {
+        "World": "World of super hero"
+      }
     },
     "Languages": ["en", "fr"],
     "Formats": {

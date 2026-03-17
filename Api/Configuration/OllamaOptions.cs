@@ -19,4 +19,16 @@ public sealed class OllamaOptions
     /// Request timeout in seconds when calling Ollama.
     /// </summary>
     public int TimeoutSeconds { get; set; } = 120;
+
+    /// <summary>
+    /// Optional global context to help the model understand the product, audience, tone, and constraints.
+    /// This text is appended to the prompt and should be short and specific.
+    /// </summary>
+    public string? Context { get; set; }
+
+    /// <summary>
+    /// Optional glossary to enforce preferred terms or translations.
+    /// The key is a source term; the value is the preferred output term in the target language.
+    /// </summary>
+    public IReadOnlyDictionary<string, string>? Glossary { get; set; }
 }

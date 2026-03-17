@@ -18,7 +18,7 @@ public sealed class OllamaReleaseService(HttpClient httpClient, IOptions<Release
     /// <inheritdoc />
     public async Task<string> GenerateReleaseNoteAsync(ParsedChangelog parsed, string format, string language, string exampleTemplate, CancellationToken cancellationToken = default)
     {
-        var (prompt, wrapTag) = BuildPrompt(parsed, format, language, exampleTemplate);
+        var (prompt, wrapTag) = BuildPrompt(parsed, format, language, exampleTemplate, _options.Ollama.Context, _options.Ollama.Glossary);
         var request = new OllamaChatRequest
         {
             Model = _options.Ollama.Model,
@@ -44,7 +44,13 @@ public sealed class OllamaReleaseService(HttpClient httpClient, IOptions<Release
         return content;
     }
 
-    private static (string Prompt, string? WrapTag) BuildPrompt(ParsedChangelog parsed, string format, string language, string exampleTemplate)
+    private static (string Prompt, string? WrapTag) BuildPrompt(
+        ParsedChangelog parsed,
+        string format,
+        string language,
+        string exampleTemplate,
+        string? context,
+        IReadOnlyDictionary<string, string>? glossary)
     {
         var (templateForLanguage, templateIsForOtherLanguage, matchedTag) = GetTemplateForLanguage(exampleTemplate, language);
         string? wrapTag = format.Equals("store", StringComparison.OrdinalIgnoreCase) ? matchedTag : null;
@@ -74,6 +80,21 @@ public sealed class OllamaReleaseService(HttpClient httpClient, IOptions<Release
 
         var sb = new System.Text.StringBuilder();
         sb.Append("You write release notes by filling in a template. You must change ONLY the placeholders; everything else must stay exactly as in the template.\n\n");
+
+        if (!string.IsNullOrWhiteSpace(context))
+        {
+            sb.Append("CONTEXT (use to understand the product):\n");
+            sb.Append(context.Trim()).Append("\n\n");
+        }
+
+        if (glossary is not null && glossary.Count > 0)
+        {
+            sb.Append("GLOSSARY (enforce these preferred terms in the output; keep proper nouns unchanged):\n");
+            foreach (var entry in glossary)
+                sb.Append("- ").Append(entry.Key).Append(" => ").Append(entry.Value).Append('\n');
+            sb.Append('\n');
+        }
+
         sb.Append("RULES:\n");
         sb.Append("1. Only replace these placeholders:\n");
         sb.Append("   - \"...\" or \"....\" (one or more dots): replace with the actual content for that section. Add one line per item from the list below (rephrased/vulgarized in the requested language \"").Append(language).Append("\"). Do not add or remove formatting.\n");
