@@ -29,6 +29,7 @@ public sealed class ChangelogParser : IChangelogParser
         var fixed_ = new List<string>();
 
         string? currentSection = null;
+        var started = false;
 
         foreach (var line in lines)
         {
@@ -36,9 +37,13 @@ public sealed class ChangelogParser : IChangelogParser
             var versionMatch = VersionLineRegex.Match(trimmed);
             if (versionMatch.Success)
             {
+                if (started)
+                    break;
+
                 version = versionMatch.Groups[1].Value.Trim();
                 date = versionMatch.Groups[2].Value;
                 currentSection = null;
+                started = true;
                 continue;
             }
 
