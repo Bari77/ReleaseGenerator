@@ -20,7 +20,7 @@ services:
     restart: always
     environment:
       ASPNETCORE_ENVIRONMENT: Production
-      OLLAMA__BASEURL: http://ollama:11434
+      ReleaseGenerator__Ollama__BaseUrl: http://ollama:11434
     depends_on:
       - ollama
     labels:
@@ -30,7 +30,7 @@ services:
       - "traefik.http.routers.releasegenerator.entrypoints=websecure"
       - "traefik.http.routers.releasegenerator.tls=true"
       - "traefik.http.routers.releasegenerator.tls.certresolver=myresolver"
-      - "traefik.http.services.releasegenerator.loadbalancer.server.port=80"
+      - "traefik.http.services.releasegenerator.loadbalancer.server.port=8080"
       - "traefik.http.routers.releasegenerator.middlewares=rate-limit-global@file"
   
       - "traefik.http.routers.releasegenerator-http.rule=Host(`releasegenerator.domain.net`)"
