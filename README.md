@@ -42,7 +42,7 @@ Configuration lives under `ReleaseGenerator` in `appsettings.json` (or environme
 | Key | Description |
 |-----|-------------|
 | `ReleaseGenerator:Ollama:BaseUrl` | Ollama base URL (e.g. `http://localhost:11434` or `http://ollama:11434` in Docker). |
-| `ReleaseGenerator:Ollama:Model` | Model name (e.g. `llama3.2`). |
+| `ReleaseGenerator:Ollama:Model` | Model name (e.g. `llama3.2`). See [Recommended models](#recommended-ollama-models) for better translation and formatting. |
 | `ReleaseGenerator:Ollama:TimeoutSeconds` | Request timeout for Ollama. |
 | `ReleaseGenerator:Languages` | List of allowed language codes (e.g. `["en", "fr"]`). |
 | `ReleaseGenerator:Formats` | Map of format id → `{ "ExampleTemplate": "..." }`. The model uses the example to match style and structure. You can use placeholders like `{version}` and `{date}` in the example; the prompt tells the model to use the real version and date. |
@@ -73,6 +73,20 @@ Example (excerpt):
 When running the API in Docker, set the Ollama URL via environment, e.g.:
 
 - `ReleaseGenerator__Ollama__BaseUrl=http://ollama:11434`
+
+### Recommended Ollama models
+
+For better reformulation, translation, and strict template formatting (e.g. Discord ** and __), use a larger or more capable model. Examples (pull with `ollama pull <name>`):
+
+| Model | Command | Notes |
+|-------|---------|--------|
+| **Llama 3.1 70B** | `ollama pull llama3.1:70b` | Strong reasoning and multilingual; higher RAM/VRAM. |
+| **Mistral Large** | `ollama pull mistral-large` | Very good multilingual (FR/EN and others), strong instruction following. |
+| **Mistral Large 3** | `ollama pull mistral-large-3` | Newer flagship, 256k context, good for translation and formatting. |
+| **Mixtral 8x7B** | `ollama pull mixtral` | Good balance of quality and size; solid French/English. |
+| **Llama 3.2** | `ollama pull llama3.2` | Default in config; lighter, may drop formatting or translate roughly. |
+
+Set `ReleaseGenerator:Ollama:Model` to the chosen model name (e.g. `mistral-large` or `llama3.1:70b`).
 
 ## Changelog format
 
@@ -139,8 +153,8 @@ Content-Type: application/json
 
 Response:
 
-- **JSON** (default): `{ "content": "<generated release note>" }`
-- **Plain text**: Send `Accept: text/plain` to get only the generated content.
+- **Plain text** (default): The generated release note as the raw response body, so it displays cleanly in the browser or when piping `curl`.
+- **JSON**: Send `Accept: application/json` to get `{ "content": "<generated release note>" }`.
 
 Validation errors (unknown format/language, invalid or empty changelog) return `400` with a JSON body like `{ "error": "..." }`.
 
@@ -163,7 +177,7 @@ curl -X POST "http://localhost:5041/api/ReleaseNotes/generate-from-body?format=d
   -d @CHANGELOG.md
 ```
 
-Response is the same as for `POST /generate` (JSON or `text/plain` depending on `Accept`).
+Response is the same as for `POST /generate` (plain text by default, or JSON if `Accept: application/json`).
 
 ## CI/CD usage
 
@@ -179,8 +193,7 @@ Example (GitHub Actions style):
   run: |
     NOTE=$(curl -s -X POST "${{ secrets.RELEASEGENERATOR_URL }}/api/ReleaseNotes/generate-from-body?format=discord&language=en" \
       -H "Content-Type: text/plain" \
-      -d @CHANGELOG.md \
-      -H "Accept: text/plain")
+      -d @CHANGELOG.md)
     echo "note<<EOF" >> $GITHUB_OUTPUT
     echo "$NOTE" >> $GITHUB_OUTPUT
     echo "EOF" >> $GITHUB_OUTPUT

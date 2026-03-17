@@ -47,14 +47,14 @@ public class ReleaseNotesController(
 
     /// <summary>
     /// Generates a release note from the provided JSON request body (changelog, format, language).
-    /// Validates input against configuration, parses the changelog, then calls Ollama. Returns the generated content as JSON or plain text depending on Accept.
+    /// Validates input against configuration, parses the changelog, then calls Ollama. Returns plain text by default; send Accept: application/json to get JSON.
     /// </summary>
     /// <param name="request">Request containing raw changelog text, format id, and language code.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>200 with generated content (JSON or text/plain); 400 if validation or parsing fails.</returns>
+    /// <returns>200 with generated content (text/plain by default, or JSON if Accept: application/json); 400 if validation or parsing fails.</returns>
     [HttpPost("generate")]
     [Consumes("application/json")]
-    [Produces("application/json", "text/plain")]
+    [Produces("text/plain", "application/json")]
     public async Task<IActionResult> Generate([FromBody] GenerateRequest request, CancellationToken cancellationToken)
     {
         var validation = ValidateRequest(request);
@@ -75,10 +75,10 @@ public class ReleaseNotesController(
             exampleTemplate,
             cancellationToken);
 
-        if (Request.Headers.Accept.Any(a => a?.Contains("text/plain", StringComparison.OrdinalIgnoreCase) == true))
-            return Content(content, "text/plain");
+        if (Request.Headers.Accept.Any(a => a?.Contains("application/json", StringComparison.OrdinalIgnoreCase) == true))
+            return Ok(new GenerateResponse { Content = content });
 
-        return Ok(new GenerateResponse { Content = content });
+        return Content(content, "text/plain");
     }
 
     /// <summary>
@@ -91,7 +91,7 @@ public class ReleaseNotesController(
     /// <returns>Same as <see cref="Generate"/>: 200 with generated content or 400 on validation/parse error.</returns>
     [HttpPost("generate-from-body")]
     [Consumes("text/plain")]
-    [Produces("application/json", "text/plain")]
+    [Produces("text/plain", "application/json")]
     public async Task<IActionResult> GenerateFromBody(
         [FromQuery] string format,
         [FromQuery] string language,
